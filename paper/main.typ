@@ -1,4 +1,5 @@
 #import "@preview/charged-ieee:0.1.4": ieee
+#import "@preview/glossarium:0.5.10": make-glossary, register-glossary, print-glossary
 
 #show: ieee.with(
   title: [Teamy's Policy-Based Access Control (TPBAC)],
@@ -19,11 +20,79 @@
   figure-supplement: [Fig.],
 )
 
+#show: make-glossary
+
+#show link: it => it
+
+#let terminology = (
+  (
+    key: "game",
+    short: "game",
+    description: [
+      A set of rules that govern state transitions from $T_0$ to $T_"END"$. Games need not terminate.
+    ],
+  ),
+  (
+    key: "player",
+    short: "player",
+    description: [A distinct unit according to the rules of a game.],
+  ),
+  (
+    key: "match",
+    short: "match",
+    description: [
+      A session of a game controlled by rules from a starting game state at $T_0$ to $T_"END"$.
+    ],
+  ),
+  (
+    key: "lobby",
+    short: "lobby",
+    description: [
+      A group of one or more parties that engage in zero or more matches. A lobby may be formed but not actively be engaged in a match.
+    ],
+  ),
+  (
+    key: "party",
+    short: "party",
+    description: [
+      A non-empty set of players that can join and leave lobbies as a unit. Players are always in a party, even if the party only has one player. If a game does not inherently have a party system, it is equivalent to having a party system with a maximum party size of one player.
+    ],
+  ),
+  (
+    key: "matchmaking-queue",
+    short: "matchmaking queue",
+    description: [
+      A system that matches parties together to form a lobby for the purpose of playing matches.
+    ],
+  ),
+  (
+    key: "clan",
+    short: "clan",
+    description: [
+      A group of players for purposes of coordinating play and socialization, useful for filling parties and lobbies.
+    ],
+  ),
+  (
+    key: "friend",
+    short: "friend",
+    description: [
+      A relationship between two players that have mutually agreed to be friends. This can be established by the game (e.g., League of Legends) or by a game platform (e.g., Steam).
+    ],
+  ),
+  (
+    key: "invite",
+    short: "invite",
+    description: [A solicitation from one player to one or more other players to join a party.],
+  ),
+)
+
+#register-glossary(terminology)
+
 = Introduction
 
 == Motivation
 
-Consider a compute-constrained multiplayer environment using a client-server hub-and-spoke architecture. A server running a match is responsible for evaluating an abstract machine code that powers a scripting language with inputs controlled by the clients. The server wants to ensure that players are not able to consume excessive resources due to malicious behaviour or, more likely, player oopsie-daisies. The server also wants to ensure that players are not able to cheat.
+Consider a compute-constrained multiplayer environment using a client-server hub-and-spoke architecture. A server running a @match is responsible for evaluating an abstract machine code that powers a scripting language with inputs controlled by the clients. The server wants to ensure that @player:pl are not able to consume excessive resources due to malicious behaviour or, more likely, player oopsie-daisies. The server also wants to ensure that @player:pl are not able to cheat.
 
 TODO: briefly explain the SFM logistics system, demonstrate how resources cannot be created or destroyed and are instead only moved from A to B. Translate from a recurisve execution to an abstract machine code that can have suspended execution to avoid consuming too much time per tick.
 
@@ -54,67 +123,51 @@ TODO: briefly explain the SFM logistics system, demonstrate how resources cannot
 
 ==== Entra Conditional Access Policies
 
-== Videogames
+== Terminology
 
-=== Terminology
+#print-glossary(terminology, show-all: true, disable-back-references: true)
 
-A "game" is a set of rules that govern state transitions from $T_0$ to $T_"END"$. Games need not terminate.
-
-A "player" is a distinct unit according to the rules of a game.
-
-A "match" is a session of a game controlled by rules from a starting game state at $T_0$ to $T_"END"$.
-
-A "lobby" is a group of one or more parties that engage in zero or more matches. A lobby may be formed but not actively be engaged in a match.
-
-A "party" is a group of one or more players that can join and leave lobbies as a unit. Players are always in a party, even if the party only has one player. If a game does not inherently have a party system, it is equivalent to having a party system with a maximum party size of one player.
-
-A "matchmaking queue" is a system that matches parties together to form a lobby for the purpose of playing matches.
-
-A "clan" is a group of players for purposes of coordinating play and socialization, useful for filling parties and lobbies.
-
-A "friend" is a relationship between two players that have mutually agreed to be friends. This can be established by the game (e.g., League of Legends) or by a game platform (e.g., Steam).
-
-An "invite" is a solicitation from one player to one or more other players to join a party.
+== Software Precedents
 
 === League of Legends
 
-Players can join the parties of friends without an invite through.
+@Player:pl can join the @party:pl of @friend:pl without an @invite through.
 
-The party has a leader.
+The @party has a leader.
 
-The party leader can kick players from the party.
+The @party leader can kick @player:pl from the @party.
 
-The party has a toggle that can block people from joining the party without an invite.
+The @party has a toggle that can block people from joining the @party without an @invite.
 
-Only the party leader can enqueue the party for matchmaking.
+Only the @party leader can enqueue the @party for matchmaking.
 
-When a match is found, each player is presented with "Accept Match" and "Decline" buttons along with a 30(todo: confirm) second countdown. The visual indicator for time remaining to accept feels like it has a grace period where the timer is at 0 but the player can still accept the match.
+When a @match is found, each @player is presented with "Accept Match" and "Decline" buttons along with a 30(todo: confirm) second countdown. The visual indicator for time remaining to accept feels like it has a grace period where the timer is at 0 but the @player can still accept the @match.
 
-If any player from any party declines, the match is cancelled and the lobby is disbanded.
+If any @player from any @party declines, the @match is cancelled and the @lobby is disbanded.
 
-There are penalties for declining matches and for abandoning lobbies after accepting matches.
+There are penalties for declining @match:pl and for abandoning @lobby:pl after accepting @match:pl.
 
 === Risk of Rain 2
 
-The party creation determines if the lobby is "private", "friends-only", or "public". TODO: check if passwords are supported
+The @party creation determines if the @lobby is "private", "friends-only", or "public". TODO: check if passwords are supported
 
-The party system has a ready-up system.
+The @party system has a ready-up system.
 
-Once readied up, a player cannot un-ready.
+Once readied up, a @player cannot un-ready.
 
-Once at least one player has readied up, a 60 second countdown starts.
+Once at least one @player has readied up, a 60 second countdown starts.
 
-After the countdown, the game starts regardless if all players are readied up or not.
+After the countdown, the @game starts regardless if all @player:pl are readied up or not.
 
 === The Finals
 
-The party leader can kick players from the party.
+The @party leader can kick @player:pl from the @party.
 
-The party leader can enqueue the party for matchmaking.
+The @party leader can enqueue the @party for matchmaking.
 
-When a match is found, an audio cue is played and players join the lobby automatically.
+When a @match is found, an audio cue is played and @player:pl join the @lobby automatically.
 
-The lobby begins a match without a ready-up system.
+The @lobby begins a @match without a ready-up system.
 
 only host can start matchmaking, can look at the menus at least as a guest
 
@@ -126,7 +179,7 @@ anyone can queue a mission, waits for everyone to get in droppods
 
 === STAR WARS™ Battlefront™ II: Celebration Edition
 
-anyone in the lobby can start matchmaking 👍
+anyone in the @lobby can start matchmaking 👍
 
 === osu
 
@@ -136,7 +189,7 @@ anyone in the lobby can start matchmaking 👍
 
 > Yes I know this may sound stupid but my beginner brain does not understand · Issue #413 · https://github.com/Syncplay/syncplay/issues/413
 
-lobby leader is for groupwatches, can't unready friends in small scenario
+@lobby leader is for groupwatches, can't unready @friend:pl in small scenario
 
 = Common Elements
 
