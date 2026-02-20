@@ -48,7 +48,7 @@
     key: "lobby",
     short: "lobby",
     description: [
-      A group of one or more parties that engage in zero or more matches. A lobby may be formed but not actively be engaged in a match.
+      A set of parties for the purpose of engaging in matches. A lobby may be formed but not actively be engaged in a match.
     ],
   ),
   (
@@ -69,14 +69,14 @@
     key: "clan",
     short: "clan",
     description: [
-      A group of players for purposes of coordinating play and socialization, useful for filling parties and lobbies.
+      A non-empty set of players for purposes of coordinating play and socialization, useful for filling parties and lobbies.
     ],
   ),
   (
     key: "friend",
     short: "friend",
     description: [
-      A relationship between two players that have mutually agreed to be friends. This can be established by the game (e.g., League of Legends) or by a game platform (e.g., Steam).
+      A relationship between two players that have mutually agreed to be friends. This can be managed by a game (e.g., League of Legends) or by a game platform (e.g., Steam).
     ],
   ),
   (
