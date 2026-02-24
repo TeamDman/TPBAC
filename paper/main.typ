@@ -24,7 +24,7 @@
 
 #show link: it => it
 
-#let terminology = (
+#let video-game-terminology = (
   (
     key: "game",
     short: "game",
@@ -35,58 +35,58 @@
   (
     key: "player",
     short: "player",
-    description: [A distinct unit according to the rules of a game.],
+    description: [A distinct unit according to the rules of a @game.],
   ),
   (
     key: "match",
     short: "match",
     description: [
-      A session of a game controlled by rules from a starting game state at $T_0$ to $T_"END"$.
+      A session of a @game controlled by rules from a starting game state at $T_0$ to $T_"END"$.
     ],
   ),
   (
     key: "lobby",
     short: "lobby",
     description: [
-      A set of parties for the purpose of engaging in matches. A lobby may be formed but not actively be engaged in a match.
+      A set of @party:pl for the purpose of engaging in @match:pl. A @lobby may be formed but not actively be engaged in a @match.
     ],
   ),
   (
     key: "party",
     short: "party",
     description: [
-      A non-empty set of players that can join and leave lobbies as a unit. Players are always in a party, even if the party only has one player. If a game does not inherently have a party system, it is equivalent to having a party system with a maximum party size of one player.
+      A non-empty set of @player:pl that can join and leave @lobby:pl as a unit. @Player:pl are always in a @party, even if the @party only has one @player. If a @game does not inherently have a @party system, it is equivalent to having a @party system with a maximum @party size of one @player.
     ],
   ),
   (
     key: "matchmaking-queue",
     short: "matchmaking queue",
     description: [
-      A system that matches parties together to form a lobby for the purpose of playing matches.
+      A system that matches @party:pl together to form a @lobby for the purpose of playing @match:pl.
     ],
   ),
   (
     key: "clan",
     short: "clan",
     description: [
-      A non-empty set of players for purposes of coordinating play and socialization, useful for filling parties and lobbies.
+      A non-empty set of @player:pl for purposes of coordinating play and socialization, useful for filling @party:pl and @lobby:pl.
     ],
   ),
   (
     key: "friend",
     short: "friend",
     description: [
-      A relationship between two players that have mutually agreed to be friends. This can be managed by a game (e.g., League of Legends) or by a game platform (e.g., Steam).
+      A relationship between two @player:pl that have mutually agreed to be friends. This can be managed by a @game (e.g., League of Legends) or by a game platform (e.g., Steam).
     ],
   ),
   (
     key: "invite",
     short: "invite",
-    description: [A solicitation from one player to one or more other players to join a party.],
+    description: [A solicitation from one @player to one or more other @player:pl to join a @party.],
   ),
 )
 
-#register-glossary(terminology)
+#register-glossary(video-game-terminology)
 
 = Introduction
 
@@ -123,15 +123,15 @@ TODO: briefly explain the SFM logistics system, demonstrate how resources cannot
 
 ==== Entra Conditional Access Policies
 
-== Terminology
+== Video Games
 
-#print-glossary(terminology, show-all: true, disable-back-references: true)
+=== Terminology
 
-== Software Precedents
+#print-glossary(video-game-terminology, show-all: true, disable-back-references: true)
 
 === League of Legends
 
-@Player:pl can join the @party:pl of @friend:pl without an @invite through.
+@player:pl can join the @party:pl of @friend:pl without an @invite through.
 
 The @party has a leader.
 
@@ -190,6 +190,16 @@ anyone in the @lobby can start matchmaking 👍
 > Yes I know this may sound stupid but my beginner brain does not understand · Issue #413 · https://github.com/Syncplay/syncplay/issues/413
 
 @lobby leader is for groupwatches, can't unready @friend:pl in small scenario
+
+== Inter-Process Communication (IPC) Systems
+
+=== Roam
+
+https://github.com/bearcove/roam
+
+=== Veilid
+
+https://gitlab.com/veilid/veilid
 
 = Common Elements
 
