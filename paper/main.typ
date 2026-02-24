@@ -1,5 +1,5 @@
 #import "@preview/charged-ieee:0.1.4": ieee
-#import "@preview/glossarium:0.5.10": make-glossary, register-glossary, print-glossary
+#import "@preview/glossarium:0.5.10": gls, make-glossary, print-glossary, register-glossary
 
 #show: ieee.with(
   title: [Teamy's Policy-Based Access Control (TPBAC)],
@@ -12,7 +12,7 @@
       //department: [Co-Founder],
       //organization: [Typst GmbH],
       location: [Ontario, Canada],
-      email: "TeamDman9201@gmail.com"
+      email: "TeamDman9201@gmail.com",
     ),
   ),
   index-terms: ("Access Control", "RBAC", "ABAC", "PBAC", "TPBAC"),
@@ -123,6 +123,10 @@ TODO: briefly explain the SFM logistics system, demonstrate how resources cannot
 
 ==== Entra Conditional Access Policies
 
+== Misc
+
+#link("https://www.nextlabs.com/blogs/what-is-policy-decision-point-pdp/", "Policy Decision Point (PDP)")
+
 == Video Games
 
 === Terminology
@@ -203,65 +207,194 @@ https://gitlab.com/veilid/veilid
 
 = Common Elements
 
-== Actions
+#let common-elements-terminology = (
+  (
+    key: "action",
+    short: "action",
+    description: [
+      A invocable discrete control flow within a software system.
 
-Actions are invocable discrete control flows within a software system. Actions have a unique identifier.
+      Not necessarily serializable nor an object.
 
-An action invocation attempt is a discrete initiation of the action execution pipeline by an actor.
+      Has an @action-id.
+    ],
+  ),
+  (
+    key: "action-id",
+    short: "action ID",
+    long: "action identifier",
+    description: [
+      The sole canonical identifier for an action. Equality of action IDs implies equality of actions.
+    ],
+  ),
+  (
+    key: "principal",
+    short: "principal",
+    description: [
+      A discrete unit of agency that can invoke actions.
 
-An action invocation attempt is a tuple of an action id, an actor, and a context.
+      Contains a @principal-id.
+    ],
+  ),
+  (
+    key: "principal-id",
+    short: "principal ID",
+    long: "principal identifier",
+    description: [
+      The sole canonical identifier for a principal. Equality of principal IDs implies equality of principals.
+    ],
+  ),
+  (
+    key: "action-invocation-attempt",
+    short: "AIA",
+    long: "action invocation attempt",
+    description: [
+      A discrete initiation of the action-execution-rules-engine-pipeline by an actor.
 
-== Actors
+      An @action-invocation-attempt is an immutable record object containing an @action-id, a @principal-id, along with any additional context that is useful for decision making (e.g., userPrincipalName, request origin IP address, impersonation chains, datetime, etc.).
 
-Actors are discrete units of agency that can invoke actions. 
+      Note that an @action-invocation-attempt is purely a rules-checking exercise and is decoupled from the actual application-level follow-through of the action. It may be the case that an @action-invocation-attempt is invoked for purposes of checking if a principal would be allowed to perform an action without the intention of actually performing the action.
 
-Each actor has a unique serializable identifier.
+      Contains an @action-invocation-attempt-id.
+    ],
+  ),
+  (
+    key: "action-invocation-attempt-id",
+    short: "AIA ID",
+    long: "action invocation attempt identifier",
+    description: [
+      The one unique canonical identifier for an @action-invocation-attempt. Equality of @action-invocation-attempt-id:pl implies equality of @action-invocation-attempt:pl.
+    ],
+  ),
+  (
+    key: "policy",
+    short: "policy",
+    description: [
+      A discrete access control rule predicate object that maps @action-invocation-attempt:pl to an allow or deny @outcome.
+    ],
+  ),
+  (
+    key: "policy-id",
+    short: "policy ID",
+    long: "policy identifier",
+    description: [
+      The one unique canonical identifier for a policy. Equality of policy IDs implies equality of policies.
+    ],
+  ),
+  (
+    key: "action-invocation-attempt-result",
+    short: "AIA result",
+    long: "action invocation attempt result",
+    description: [
+      An immutable record object storing the evaluation of an @action-invocation-attempt.
 
-Details of an actor beyond the identifier are considered part of the context (e.g., userPrincipalName, client IP address, group affiliations, etc.) and are not inherent to the actor itself.
+      Contains an @outcome.
 
-== Policies
+      References an @action-invocation-attempt.
 
-A policy is a discrete object that contributes to the decision of whether an action invocation attempt should be allowed or denied.
+      Contains an @action-invocation-attempt-result-id.
+    ],
+  ),
+  (
+    key: "action-invocation-attempt-result-id",
+    short: "AIA result ID",
+    long: "action invocation attempt result identifier",
+    description: [
+      The one unique canonical identifier for an @action-invocation-attempt-result. Equality of @action-invocation-attempt-result-id:pl implies equality of @action-invocation-attempt-result:pl.
+    ],
+  ),
+  (
+    key: "outcome",
+    short: "outcome",
+    description: [
+      The result of an @action-invocation-attempt, which is either allow or deny.
 
-A policy has a priority integer value. The set of policies is totally ordered using this `priority` value.
+      "Permit" is an alias for "allow" and "forbid" is an alias for "deny".
 
-TODO: how to insert a policy between `priority=1` and `priority=2` without just using decimals
+      The outcome of an @action-invocation-attempt is determined by iteration through the #gls("priority", display: "ordered") set of policies; at least one allow-policy and no deny-policies must match the @action-invocation-attempt for the outcome to be allow. If any deny-policy matches the @action-invocation-attempt, the outcome is deny. If no policies match the @action-invocation-attempt, the outcome is deny.
 
-A policy has a predicate that determines if the policy matches a given action invocation attempt.
+      This follows the Principal of Least Privilege (a @principal can do nothing without explicit approval).
+    ],
+  ),
+  (
+    key: "outcome-id",
+    short: "outcome ID",
+    long: "outcome identifier",
+    description: [
+      A unique identifier for an @outcome that is produced by an evaluation of an @action-invocation-attempt.
+    ],
+  ),
+  (
+    key: "priority",
+    short: "priority",
+    description: [
+      An integer value mapping that totally orders @policy:pl. Higher priority @policy:pl are evaluated first in the policy evaluation process. Policies can be bulk-reordered such that a policy is moved between two previously-sequentially-ordered policies; priority is an integer for implementation simplicity, but the conceptual model is that of a total ordering of policies that can be re-ordered as needed.
+    ],
+  ),
+)
+#register-glossary(common-elements-terminology)
 
-A policy has an outcome behaviour of either "allow" or "deny".
+This is the minimum set of elements needed to build Teamy's Policy-Based Access Control (TPBAC) system. Theses elements are the groundwork of an extensible system that is useful for automated decision making in software systems.
 
-A policy has an enforcement behaviour of either "enforce" or "audit". The audit behaviour can be used to assess the impact of a policy without actually enforcing it, which is useful for testing and gradual rollouts.
-
-The outcome of an action invocation attempt is determined by iteration through the set of policies; at least one allow-policy and no deny-policies must match the action invocation attempt for the outcome to be allow. If any deny-policy matches the action invocation attempt, the outcome is deny. If no policies match the action invocation attempt, the outcome is deny.
-
-This follows the Principal of Least Privilege (no actor can do anything without explicit approval).
-
-== Contexts
-
-=== Global
-
-Used for policy evaluation but not specific to any given action id.
-
-=== Local - Parameters
-
-Specific to a given action id.
+#print-glossary(common-elements-terminology, show-all: true, disable-back-references: true)
 
 = Extensions
 
+== Timing
+
+Include a `datetime` field in the @action-invocation-attempt definition.
+
+Include a `datetime` field in the @action-invocation-attempt-result definition.
+
+== Enforcement Behaviour
+
+#let extension-enforcement-behaviour-terminology = (
+  (
+    key: "enforcement-behaviour",
+    short: "enforcement behaviour",
+    description: [
+      A property of a @policy that determines whether the @policy is enforced or only audited.
+      An enforce @policy contributes to the allow or deny @outcome of an action invocation attempt, while an audit @policy does not contribute to the allow or deny @outcome for purposes of assessing the impact of a @policy without actually enforcing it, which is useful for testing, gradual rollouts, and what-if scenarios.
+    ],
+  ),
+)
+#register-glossary(extension-enforcement-behaviour-terminology)
+
+#print-glossary(extension-enforcement-behaviour-terminology, show-all: true, disable-back-references: true)
+
 == Impersonation
 
-chain - impersonate another user, a group you are a member of, a scope hierarchy to inherit permissions
+#let extension-impersonation-terminology = (
+  (
+    key: "impersonation",
+    short: "impersonation",
+    description: [
+      A grant for a @principal to submit @action-invocation-attempt:pl on behalf of another principal.
+    ],
+  ),
+  (
+    key: "impersonation-chain",
+    short: "impersonation chain",
+    description: [
+      A list of @principal-id:pl that are involved in the submission of an @action-invocation-attempt on behalf of another @principal through means of @impersonation for purposes of revealing the underlying @principal:pl that is ultimately responsible for the @action-invocation-attempt.
+    ],
+  ),
+)
+#register-glossary(extension-impersonation-terminology)
 
-== Roles
+#print-glossary(extension-impersonation-terminology, show-all: true, disable-back-references: true)
 
-== Scopes
+=== Roles
 
-== Groups
+@principal:pl #gls("impersonation", display: "impersonate") roles.
 
-== Action Invocation Attempt Timestamps
+=== Scopes
 
-== Action Invocation Attempt Identifiers
+Scopes can #gls("impersonation", display: "impersonate") child scopes.
+
+=== Groups
+
+@principal:pl #gls("impersonation", display: "impersonate") groups.
 
 == Bucket-Refilling Rate Limiting
 
@@ -280,60 +413,60 @@ chain - impersonate another user, a group you are a member of, a scope hierarchy
 
 // = Introduction
 // Scientific writing is a crucial part of the research process, allowing researchers to share their findings with the wider scientific community. However, the process of typesetting scientific documents can often be a frustrating and time-consuming affair, particularly when using outdated tools such as LaTeX. Despite being over 30 years old, it remains a popular choice for scientific writing due to its power and flexibility. However, it also comes with a steep learning curve, complex syntax, and long compile times, leading to frustration and despair for many researchers @netwok2020 @netwok2022.
-// 
+//
 // == Paper overview
 // In this paper we introduce Typst, a new typesetting system designed to streamline the scientific writing process and provide researchers with a fast, efficient, and easy-to-use alternative to existing systems. Our goal is to shake up the status quo and offer researchers a better way to approach scientific writing.
-// 
+//
 // By leveraging advanced algorithms and a user-friendly interface, Typst offers several advantages over existing typesetting systems, including faster document creation, simplified syntax, and increased ease-of-use.
-// 
+//
 // To demonstrate the potential of Typst, we conducted a series of experiments comparing it to other popular typesetting systems, including LaTeX. Our findings suggest that Typst offers several benefits for scientific writing, particularly for novice users who may struggle with the complexities of LaTeX. Additionally, we demonstrate that Typst offers advanced features for experienced users, allowing for greater customization and flexibility in document creation.
-// 
+//
 // Overall, we believe that Typst represents a significant step forward in the field of scientific writing and typesetting, providing researchers with a valuable tool to streamline their workflow and focus on what really matters: their research. In the following sections, we will introduce Typst in more detail and provide evidence for its superiority over other typesetting systems in a variety of scenarios.
-// 
+//
 // = Methods <sec:methods>
 // #lorem(45)
-// 
+//
 // $ a + b = gamma $ <eq:gamma>
-// 
+//
 // #lorem(80)
-// 
+//
 // #figure(
-  // placement: none,
-  // circle(radius: 15pt),
-  // caption: [A circle representing the Sun.]
+// placement: none,
+// circle(radius: 15pt),
+// caption: [A circle representing the Sun.]
 // ) <fig:sun>
-// 
+//
 // In @fig:sun you can see a common representation of the Sun, which is a star that is located at the center of the solar system.
-// 
+//
 // #lorem(120)
-// 
+//
 // #figure(
-  // caption: [The Planets of the Solar System and Their Average Distance from the Sun],
-  // placement: top,
-  // table(
-    // // Table styling is not mandated by the IEEE. Feel free to adjust these
-    // // settings and potentially move them into a set rule.
-    // columns: (6em, auto),
-    // align: (left, right),
-    // inset: (x: 8pt, y: 4pt),
-    // stroke: (x, y) => if y <= 1 { (top: 0.5pt) },
-    // fill: (x, y) => if y > 0 and calc.rem(y, 2) == 0  { rgb("#efefef") },
-// 
-    // table.header[Planet][Distance (million km)],
-    // [Mercury], [57.9],
-    // [Venus], [108.2],
-    // [Earth], [149.6],
-    // [Mars], [227.9],
-    // [Jupiter], [778.6],
-    // [Saturn], [1,433.5],
-    // [Uranus], [2,872.5],
-    // [Neptune], [4,495.1],
-  // )
+// caption: [The Planets of the Solar System and Their Average Distance from the Sun],
+// placement: top,
+// table(
+// // Table styling is not mandated by the IEEE. Feel free to adjust these
+// // settings and potentially move them into a set rule.
+// columns: (6em, auto),
+// align: (left, right),
+// inset: (x: 8pt, y: 4pt),
+// stroke: (x, y) => if y <= 1 { (top: 0.5pt) },
+// fill: (x, y) => if y > 0 and calc.rem(y, 2) == 0  { rgb("#efefef") },
+//
+// table.header[Planet][Distance (million km)],
+// [Mercury], [57.9],
+// [Venus], [108.2],
+// [Earth], [149.6],
+// [Mars], [227.9],
+// [Jupiter], [778.6],
+// [Saturn], [1,433.5],
+// [Uranus], [2,872.5],
+// [Neptune], [4,495.1],
+// )
 // ) <tab:planets>
-// 
+//
 // In @tab:planets, you see the planets of the solar system and their average distance from the Sun.
 // The distances were calculated with @eq:gamma that we presented in @sec:methods.
-// 
+//
 // #lorem(240)
-// 
+//
 // #lorem(240)
